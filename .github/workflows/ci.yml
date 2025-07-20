@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main, dev ]
+
+jobs:
+  # Linting and type checking using pre-commit and mypy
+  lint:
+    # Run on Ubuntu latest
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout code from the repository
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      # Install dependencies
+      - name: Install dependencies
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          pip install -e .[dev,test]
+
+      # Run mypy type checking
+      - name: Run mypy
+        run: |
+          mypy dataset_tools
+
+      # Run linting
+      - name: Run linting
+        run: |
+          pre-commit run --all-files
+
+      # Upload linting report
+      - name: Upload linting report
+        uses: actions/upload-artifact@v4
+        with:
+          name: linting-report
+          path: .pre-commit-results
+
+  # Testing using pytest and coverage
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout code from the repository
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      # Install dependencies
+      - name: Install dependencies
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          pip install -e .[dev,test]
+
+      # Run tests
+      - name: Run tests
+        run: |
+          pytest --cov=dataset_tools --cov-report=term-missing --cov-report=html --cov-fail-under=80
+
+      # Upload coverage report
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: htmlcov
