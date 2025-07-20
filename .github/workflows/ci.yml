@@ -23,22 +23,14 @@ jobs:
         with:
           python-version: "3.11"
 
-      # Install dependencies
-      - name: Install dependencies
+      # Install dependencies and run linting
+      - name: Install dependencies and run linting
         run: |
           python -m venv .venv
           source .venv/bin/activate
-          pip install -e .[dev,test]
-
-      # Run mypy type checking
-      - name: Run mypy
-        run: |
-          mypy dataset_tools
-
-      # Run linting
-      - name: Run linting
-        run: |
+          pip install -e .[dev]
           pre-commit run --all-files
+          mypy dataset_tools
 
       # Upload linting report
       - name: Upload linting report
