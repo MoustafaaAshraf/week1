@@ -53,16 +53,12 @@ jobs:
         with:
           python-version: "3.11"
 
-      # Install dependencies
-      - name: Install dependencies
+      # Install dependencies and run tests
+      - name: Install dependencies and run tests
         run: |
           python -m venv .venv
           source .venv/bin/activate
-          pip install -e .[dev,test]
-
-      # Run tests
-      - name: Run tests
-        run: |
+          pip install -e .[dev]
           pytest --cov=dataset_tools --cov-report=term-missing --cov-report=html --cov-fail-under=80
 
       # Upload coverage report
